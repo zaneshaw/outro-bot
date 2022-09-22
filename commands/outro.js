@@ -96,6 +96,12 @@ module.exports = {
 
 		player.on(AudioPlayerStatus.Idle, () => {
 			console.debug("Audio player is now idle");
+			setTimeout(() => {
+				if (player.state.status === "idle") {
+					console.debug("Disconnecting from voice channel");
+					connection.destroy();
+				}
+			}, 30000);
 		});
 	},
 };
