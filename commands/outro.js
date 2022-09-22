@@ -86,7 +86,7 @@ module.exports = {
 				});
 				states.set(guild, {
 					playing: false,
-					user: member
+					user: null
 				});
 				outroCount--;
 				updateActivity(interaction.client);
