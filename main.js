@@ -13,6 +13,7 @@ client.commands = new Collection();
 
 client.once("ready", () => {
     console.log(`Bot ready (${client.user.tag})`);
+    client.user.setActivity("0 outros!");
 
     const commandsPath = path.join(__dirname, "commands");
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));

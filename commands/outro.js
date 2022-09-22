@@ -4,6 +4,7 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerSta
 
 const delay = 15000;
 let states = new Collection();
+let outroCount = 0;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -57,6 +58,8 @@ module.exports = {
 			playing: true,
 			user: member
 		});
+		outroCount++;
+		updateActivity(interaction.client);
 
 		const connection = joinVoiceChannel({
 			channelId: channelId,
@@ -85,6 +88,8 @@ module.exports = {
 					playing: false,
 					user: member
 				});
+				outroCount--;
+				updateActivity(interaction.client);
 
 				console.debug("Kicked user");
 			}, delay);
@@ -105,3 +110,7 @@ module.exports = {
 		});
 	},
 };
+
+function updateActivity(client) {
+	client.user.setActivity(`${outroCount} outro${outroCount === 1 ? "" : "s"}!`);
+}
