@@ -1,3 +1,4 @@
+const path = require("node:path");
 const { SlashCommandBuilder } = require("discord.js");
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require("@discordjs/voice");
 
@@ -14,7 +15,7 @@ module.exports = {
 			adapterCreator: interaction.guild.voiceAdapterCreator,
 		});
 		const player = createAudioPlayer();
-		const resource = createAudioResource("https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3");
+		const resource = createAudioResource(path.resolve("./audio/xenogenesis.mp3"));
 
 		player.play(resource);
 		connection.subscribe(player);
