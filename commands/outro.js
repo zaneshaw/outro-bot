@@ -1,6 +1,6 @@
 const path = require("node:path");
 const { SlashCommandBuilder } = require("discord.js");
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require("@discordjs/voice");
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior } = require("@discordjs/voice");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -14,7 +14,11 @@ module.exports = {
 			guildId: interaction.guild.id,
 			adapterCreator: interaction.guild.voiceAdapterCreator,
 		});
-		const player = createAudioPlayer();
+		const player = createAudioPlayer({
+			behaviors: {
+				noSubscriber: NoSubscriberBehavior.Play
+			}
+		});
 		const resource = createAudioResource(path.resolve("./audio/xenogenesis.mp3"));
 
 		player.play(resource);
