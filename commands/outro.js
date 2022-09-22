@@ -74,7 +74,7 @@ module.exports = {
 		connection.subscribe(player);
 
 		player.on(AudioPlayerStatus.Playing, () => {
-			console.debug("Audio player playing audio");
+			console.debug("Audio player is playing audio");
 			setTimeout(async () => {
 				await interaction.member.voice.disconnect();
 				interaction.followUp({
