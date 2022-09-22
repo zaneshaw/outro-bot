@@ -5,7 +5,6 @@ const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord.js");
 const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildId = process.env.DEV_GUILD_ID;
 
 const commands = [];
 const commandsPath = path.join(__dirname, "commands");
@@ -19,5 +18,5 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: "10" }).setToken(token);
 
-rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
+rest.put(Routes.applicationCommands(clientId), { body: commands })
 	.catch(console.error);
