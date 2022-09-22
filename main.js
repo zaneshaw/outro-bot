@@ -6,7 +6,7 @@ const { Client, GatewayIntentBits, Collection } = require("discord.js");
 
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent
+        GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates
     ]
 });
 client.commands = new Collection();
@@ -21,9 +21,9 @@ client.once("ready", () => {
         const command = require(filePath);
         client.commands.set(command.data.name, command);
     }
-})
+});
 
-client.on("interactionCreate", async interaction => {
+client.on("interactionCreate", async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
     const command = client.commands.get(interaction.commandName);
