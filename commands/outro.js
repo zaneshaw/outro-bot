@@ -1,20 +1,29 @@
 const path = require("node:path");
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, Collection } = require("discord.js");
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior } = require("@discordjs/voice");
 
 const delay = 15000;
-let state = {
-	playing: false, user: null
-};
+let states = new Collection();
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("outro")
 		.setDescription("Plays outro!"),
 	async execute(interaction) {
+		const guild = interaction.guild;
 		const member = interaction.member;
 		const channelId = member.voice.channelId;
-		if (state.user == member) {
+		let state = states.get(guild);
+		if (!states.get(guild)) {
+			const _state = {
+				playing: false,
+				user: null
+			};
+			states.set(guild, _state);
+			state = _state;
+		}
+
+		if (state?.user == member) {
 			interaction.reply({
 				content: "You're already playing an outro!",
 				ephemeral: true
@@ -28,7 +37,7 @@ module.exports = {
 			});
 			return;
 		};
-		if (state.playing) {
+		if (state?.playing) {
 			setTimeout(() => {
 				// Will be a little early because of audio play delay (or a little late because of reply time)
 				interaction.followUp({
@@ -44,15 +53,15 @@ module.exports = {
 		}
 
 		interaction.reply("Playing outro!");
-		state = {
+		states.set(guild, {
 			playing: true,
 			user: member
-		};
+		});
 
 		const connection = joinVoiceChannel({
 			channelId: channelId,
-			guildId: interaction.guild.id,
-			adapterCreator: interaction.guild.voiceAdapterCreator,
+			guildId: guild.id,
+			adapterCreator: guild.voiceAdapterCreator,
 		});
 		const player = createAudioPlayer({
 			behaviors: {
@@ -72,10 +81,10 @@ module.exports = {
 					content: "Your outro finished!",
 					ephemeral: true
 				});
-				state = {
+				states.set(guild, {
 					playing: false,
-					user: null
-				};
+					user: member
+				});
 
 				console.debug("Kicked user");
 			}, delay);
