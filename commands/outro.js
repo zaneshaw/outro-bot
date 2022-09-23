@@ -14,17 +14,15 @@ module.exports = {
 		const guild = interaction.guild;
 		const member = interaction.member;
 		const channelId = member.voice.channelId;
-		let state = states.get(guild);
 		if (!states.get(guild)) {
-			const _state = {
+			const state = {
 				playing: false,
 				user: null
 			};
-			states.set(guild, _state);
-			state = _state;
+			states.set(guild, state);
 		}
 
-		if (state?.user == member) {
+		if (states.get(guild)?.user == member) {
 			interaction.reply({
 				content: "You're already playing an outro!",
 				ephemeral: true
@@ -38,10 +36,10 @@ module.exports = {
 			});
 			return;
 		};
-		if (state?.playing) {
+		if (states.get(guild)?.playing) {
 			setTimeout(() => {
 				// Will be a little early because of audio play delay (or a little late because of reply time)
-				if (state?.playing) {
+				if (states.get(guild)?.playing) {
 					interaction.followUp({
 						content: "You can now start your outro!",
 						ephemeral: true
@@ -82,7 +80,7 @@ module.exports = {
 		player.on(AudioPlayerStatus.Playing, () => {
 			console.debug("Audio player is playing audio");
 			setTimeout(async () => {
-				if (state?.playing) {
+				if (states.get(guild)?.playing) {
 					await interaction.member.voice.disconnect();
 					interaction.followUp({
 						content: "Your outro finished!",
