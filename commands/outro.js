@@ -71,7 +71,8 @@ module.exports = {
 				noSubscriber: NoSubscriberBehavior.Play
 			}
 		});
-		const resource = createAudioResource(path.resolve("./audio/xenogenesis.mp3"));
+		const resource = createAudioResource(path.resolve("./audio/xenogenesis.mp3"), { inlineVolume: true });
+		resource.volume?.setVolume(0.15);
 
 		player.play(resource);
 		connection.subscribe(player);
