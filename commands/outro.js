@@ -41,10 +41,12 @@ module.exports = {
 		if (state?.playing) {
 			setTimeout(() => {
 				// Will be a little early because of audio play delay (or a little late because of reply time)
-				interaction.followUp({
-					content: "You can now start your outro!",
-					ephemeral: true
-				});
+				if (state?.playing) {
+					interaction.followUp({
+						content: "You can now start your outro!",
+						ephemeral: true
+					});
+				}
 			}, delay);
 			interaction.reply({
 				content: "An outro is already playing!",
@@ -80,19 +82,21 @@ module.exports = {
 		player.on(AudioPlayerStatus.Playing, () => {
 			console.debug("Audio player is playing audio");
 			setTimeout(async () => {
-				await interaction.member.voice.disconnect();
-				interaction.followUp({
-					content: "Your outro finished!",
-					ephemeral: true
-				});
+				if (state?.playing) {
+					await interaction.member.voice.disconnect();
+					interaction.followUp({
+						content: "Your outro finished!",
+						ephemeral: true
+					});
+
+					console.debug("Kicked user");
+				}
 				states.set(guild, {
 					playing: false,
 					user: null
 				});
 				outroCount--;
 				updateActivity(interaction.client);
-
-				console.debug("Kicked user");
 			}, delay);
 		});
 
