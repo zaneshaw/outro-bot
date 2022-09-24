@@ -3,6 +3,7 @@ require("./commandDeployer"); // Deploy commands
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
+const { log } = require("./util/log");
 
 const client = new Client({
     intents: [
@@ -14,7 +15,7 @@ const client = new Client({
 client.commands = new Collection();
 
 client.once("ready", () => {
-    console.log(`Bot ready (${client.user.tag})`);
+    log(`Bot ready (${client.user.tag})`);
     client.user.setActivity("0 outros!");
 
     const commandsPath = path.join(__dirname, "commands");

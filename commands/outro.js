@@ -1,6 +1,7 @@
 const path = require("node:path");
 const { SlashCommandBuilder, Collection } = require("discord.js");
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior } = require("@discordjs/voice");
+const { log } = require("../util/log");
 
 const delay = 15000;
 let states = new Collection();
@@ -78,7 +79,7 @@ module.exports = {
 		connection.subscribe(player);
 
 		player.on(AudioPlayerStatus.Playing, () => {
-			console.debug("Audio player is playing audio");
+			log("Audio player is playing audio");
 			setTimeout(async () => {
 				if (states.get(guild)?.playing && connection.state.status !== "disconnected") {
 					await interaction.member.voice.disconnect();
@@ -87,7 +88,7 @@ module.exports = {
 						ephemeral: true
 					});
 
-					console.debug("Kicked user");
+					log("Kicked user");
 				}
 				states.set(guild, {
 					playing: false,
@@ -99,14 +100,14 @@ module.exports = {
 		});
 
 		player.on(AudioPlayerStatus.Paused, () => {
-			console.debug("Paused...");
+			log("Paused...");
 		});
 
 		player.on(AudioPlayerStatus.Idle, () => {
-			console.debug("Audio player is now idle");
+			log("Audio player is now idle");
 			setTimeout(() => {
 				if (player.state.status === "idle" && connection.state.status !== "disconnected" && player.state.status !== "destroyed") {
-					console.debug("Disconnecting from voice channel");
+					log("Disconnecting from voice channel");
 					connection.destroy();
 				}
 			}, 30000);
