@@ -4,6 +4,7 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerSta
 const { log } = require("../util/log");
 
 const delay = 15000;
+const idleTimeout = 30000;
 let states = new Collection();
 let outroCount = 0;
 
@@ -38,19 +39,7 @@ module.exports = {
 			return;
 		};
 		if (states.get(guild)?.playing) {
-			setTimeout(() => {
-				// Will be a little early because of audio play delay (or a little late because of reply time)
-				if (states.get(guild)?.playing) {
-					interaction.followUp({
-						content: "You can now start your outro!",
-						ephemeral: true
-					});
-				}
-			}, delay);
-			interaction.reply({
-				content: "An outro is already playing!",
-				ephemeral: true
-			});
+			handleAlreadyPlaying(interaction);
 			return;
 		}
 
@@ -80,23 +69,7 @@ module.exports = {
 
 		player.on(AudioPlayerStatus.Playing, () => {
 			log("Audio player is playing audio");
-			setTimeout(async () => {
-				if (states.get(guild)?.playing && connection.state.status !== "disconnected") {
-					await interaction.member.voice.disconnect();
-					interaction.followUp({
-						content: "Your outro finished!",
-						ephemeral: true
-					});
-
-					log("Kicked user");
-				}
-				states.set(guild, {
-					playing: false,
-					user: null
-				});
-				outroCount--;
-				updateActivity(interaction.client);
-			}, delay);
+			handleAudioPlayer(interaction, connection);
 		});
 
 		player.on(AudioPlayerStatus.Paused, () => {
@@ -105,16 +78,56 @@ module.exports = {
 
 		player.on(AudioPlayerStatus.Idle, () => {
 			log("Audio player is now idle");
-			setTimeout(() => {
-				if (player.state.status === "idle" && connection.state.status !== "disconnected" && player.state.status !== "destroyed") {
-					log("Disconnecting from voice channel");
-					connection.destroy();
-				}
-			}, 30000);
+			handleAudioPlayerIdle(connection, player);
 		});
 	},
 };
 
 function updateActivity(client) {
 	client.user.setActivity(`${outroCount} outro${outroCount === 1 ? "" : "s"}!`);
+}
+
+function handleAudioPlayer(interaction, connection,) {
+	setTimeout(async () => {
+		if (states.get(guild)?.playing && connection.state.status !== "disconnected") {
+			await interaction.member.voice.disconnect();
+			interaction.followUp({
+				content: "Your outro finished!",
+				ephemeral: true
+			});
+
+			log("Kicked user");
+		}
+		states.set(guild, {
+			playing: false,
+			user: null
+		});
+		outroCount--;
+		updateActivity(interaction.client);
+	}, delay);
+}
+
+function handleAudioPlayerIdle(connection, player) {
+	setTimeout(() => {
+		if (player.state.status === "idle" && connection.state.status !== "disconnected" && player.state.status !== "destroyed") {
+			log("Disconnecting from voice channel");
+			connection.destroy();
+		}
+	}, idleTimeout);
+}
+
+function handleAlreadyPlaying(interaction) {
+	setTimeout(() => {
+		// Will be a little early because of audio play delay (or a little late because of reply time)
+		if (states.get(guild)?.playing) {
+			interaction.followUp({
+				content: "You can now start your outro!",
+				ephemeral: true
+			});
+		}
+	}, delay);
+	interaction.reply({
+		content: "An outro is already playing!",
+		ephemeral: true
+	});
 }
