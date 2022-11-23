@@ -88,6 +88,8 @@ function updateActivity(client) {
 }
 
 function handleAudioPlayer(interaction, connection,) {
+	const guild = interaction.guild;
+
 	setTimeout(async () => {
 		if (states.get(guild)?.playing && connection.state.status !== "disconnected") {
 			await interaction.member.voice.disconnect();
